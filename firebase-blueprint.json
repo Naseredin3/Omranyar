@@ -1,0 +1,151 @@
+{
+  "entities": {
+    "TechnicalDocument": {
+      "title": "TechnicalDocument",
+      "description": "Analyzed and categorized municipal civil engineering technical document or report.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated user UID owning this document."
+        },
+        "title": {
+          "type": "string",
+          "description": "Suggested title of the technical document or report."
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "صورت‌جلسه کارگاهی",
+            "گزارش پیشرفت فیزیکی",
+            "مستندات فنی و اجرایی",
+            "صورت‌وضعیت و امور مالی",
+            "کنترل کیفیت و آزمایشگاه",
+            "نامه اداری و مکاتبات",
+            "ایمنی و HSE",
+            "سایر"
+          ],
+          "description": "Automated civil engineering category."
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["فوری", "بالا", "عادی"],
+          "description": "Operational urgency level."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["در دست بررسی", "تأیید شده", "نیازمند اصلاح"],
+          "description": "Review workflow status."
+        },
+        "projectArea": {
+          "type": "string",
+          "description": "Relevant Isfahan municipality zone or engineering department."
+        },
+        "sourceType": {
+          "type": "string",
+          "enum": ["متن", "تصویر", "فایل"],
+          "description": "Input source modality."
+        },
+        "originalExcerpt": {
+          "type": "string",
+          "description": "Short excerpt or description of the original input."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Executive summary of the report in Persian."
+        },
+        "keyFindings": {
+          "type": "array",
+          "description": "Key technical findings extracted by AI."
+        },
+        "actionItems": {
+          "type": "array",
+          "description": "Recommended follow-up actions."
+        },
+        "risksOrIssues": {
+          "type": "array",
+          "description": "Identified technical, contractual, or safety risks."
+        },
+        "tags": {
+          "type": "array",
+          "description": "Searchable keywords."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when created via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when updated via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "category",
+        "priority",
+        "status",
+        "projectArea",
+        "sourceType",
+        "originalExcerpt",
+        "summary",
+        "keyFindings",
+        "actionItems",
+        "risksOrIssues",
+        "tags",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Conversational message with the Isfahan civil engineering AI assistant.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated user UID."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "model"],
+          "description": "Sender role."
+        },
+        "text": {
+          "type": "string",
+          "description": "Persian message text."
+        },
+        "attachmentName": {
+          "type": "string",
+          "description": "Optional attached file or image label."
+        },
+        "modelUsed": {
+          "type": "string",
+          "description": "Optional Gemini model identifier used for generation."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when created via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["userId", "role", "text", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/documents/{documentId}": {
+      "schema": {
+        "$ref": "#/entities/TechnicalDocument"
+      },
+      "description": "User-scoped analyzed technical documents and civil engineering reports."
+    },
+    "/users/{userId}/chatMessages/{messageId}": {
+      "schema": {
+        "$ref": "#/entities/ChatMessage"
+      },
+      "description": "User-scoped AI assistant chat messages."
+    }
+  }
+}

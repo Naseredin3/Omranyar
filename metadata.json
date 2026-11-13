@@ -1,0 +1,6 @@
+{
+  "name": "عمران‌یار اصفهان",
+  "description": "دستیار هوشمند مدیریت و تحلیل مستندات فنی و گزارش‌های عمرانی سازمان عمران شهرداری اصفهان",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,120 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-deny all unmatched paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Global Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidStringList(listVal, maxLen) {
+      return listVal is list &&
+             listVal.size() <= maxLen &&
+             (listVal.size() == 0 || listVal[0] is string);
+    }
+
+    // --- Validation Helpers ---
+    function isValidTechnicalDocument(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 200 &&
+             data.category in [
+               'صورت‌جلسه کارگاهی',
+               'گزارش پیشرفت فیزیکی',
+               'مستندات فنی و اجرایی',
+               'صورت‌وضعیت و امور مالی',
+               'کنترل کیفیت و آزمایشگاه',
+               'نامه اداری و مکاتبات',
+               'ایمنی و HSE',
+               'سایر'
+             ] &&
+             data.priority in ['فوری', 'بالا', 'عادی'] &&
+             data.status in ['در دست بررسی', 'تأیید شده', 'نیازمند اصلاح'] &&
+             data.projectArea is string && data.projectArea.size() >= 1 && data.projectArea.size() <= 120 &&
+             data.sourceType in ['متن', 'تصویر', 'فایل'] &&
+             data.originalExcerpt is string && data.originalExcerpt.size() <= 4000 &&
+             data.summary is string && data.summary.size() >= 1 && data.summary.size() <= 2000 &&
+             isValidStringList(data.keyFindings, 10) &&
+             isValidStringList(data.actionItems, 10) &&
+             isValidStringList(data.risksOrIssues, 10) &&
+             isValidStringList(data.tags, 10) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidChatMessage(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.role in ['user', 'model'] &&
+             data.text is string && data.text.size() >= 1 && data.text.size() <= 12000 &&
+             (!('attachmentName' in data) || (data.attachmentName is string && data.attachmentName.size() <= 200)) &&
+             (!('modelUsed' in data) || (data.modelUsed is string && data.modelUsed.size() <= 80)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    // --- Collection Rules ---
+    match /users/{userId}/documents/{documentId} {
+      allow get: if isOwner(userId) && isValidId(documentId);
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(documentId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'title', 'category', 'priority', 'status',
+                         'projectArea', 'sourceType', 'originalExcerpt', 'summary',
+                         'keyFindings', 'actionItems', 'risksOrIssues', 'tags',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'title', 'category', 'priority', 'status',
+                         'projectArea', 'sourceType', 'originalExcerpt', 'summary',
+                         'keyFindings', 'actionItems', 'risksOrIssues', 'tags',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidTechnicalDocument(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(documentId) &&
+                       isValidTechnicalDocument(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'status', 'priority', 'category', 'title', 'projectArea', 'summary', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(documentId);
+    }
+
+    match /users/{userId}/chatMessages/{messageId} {
+      allow get: if isOwner(userId) && isValidId(messageId);
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(messageId) &&
+                       incoming().keys().hasAll(['userId', 'role', 'text', 'createdAt']) &&
+                       incoming().keys().hasOnly(['userId', 'role', 'text', 'attachmentName', 'modelUsed', 'createdAt']) &&
+                       isValidChatMessage(incoming(), userId);
+
+      allow update: if false;
+      allow delete: if isOwner(userId) && isValidId(messageId);
+    }
+  }
+}
