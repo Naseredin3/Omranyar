@@ -1,21 +1,47 @@
 {
-  "firestore": [
+  "project_info": {
+    "project_number": "119024875772",
+    "project_id": "gen-lang-client-0817002518",
+    "storage_bucket": "gen-lang-client-0817002518.firebasestorage.app"
+  },
+  "client": [
     {
-      "database": "ai-studio-android-25c5a84a-e944-4210-81f2-b0e854eeba4f",
-      "rules": "firestore.rules"
+      "client_info": {
+        "mobilesdk_app_id": "1:119024875772:android:63c7ea32a1b7deb3e17f79",
+        "android_client_info": {
+          "package_name": "com.aistudio.isfahanomran.kmpqrz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "119024875772-ph3jdi470f9t5mr23hsvsene6povc5lq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aistudio.isfahanomran.kmpqrz",
+            "certificate_hash": "bdeea1b5e42e035f40ee5bff4cd803bc8ca61193"
+          }
+        },
+        {
+          "client_id": "119024875772-jg8glvlvr83pns3mr1n7jp2atcqnnpqs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChBWaLZHG3jFjyX-WcbtNo0ttuq9DrHn0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "119024875772-jg8glvlvr83pns3mr1n7jp2atcqnnpqs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
-  "emulators": {
-    "firestore": {
-      "host": "127.0.0.1",
-      "port": 8085
-    },
-    "auth": {
-      "host": "127.0.0.1",
-      "port": 9099
-    },
-    "ui": {
-      "enabled": false
-    }
-  }
+  "configuration_version": "1"
 }
