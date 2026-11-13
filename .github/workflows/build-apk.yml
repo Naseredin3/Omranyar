@@ -24,8 +24,15 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Accept Android SDK licenses
+        run: |
+          SDK_MANAGER="${ANDROID_HOME:-$ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          if command -v sdkmanager >/dev/null 2>&1; then
+            yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          elif [ -x "$SDK_MANAGER" ]; then
+            yes | "$SDK_MANAGER" --licenses >/dev/null 2>&1 || true
+          fi
+          echo "Android SDK ready at ${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
